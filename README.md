@@ -1,28 +1,45 @@
-# Simple PHP Learning App
+# PHP Learning Notes
 
-This version is simplified for revision and exam practice.
+This project is a simple PHP app for learning:
 
-## Files
+- Registration
+- Login
+- Sessions
+- Cookies
+- CRUD
+- MySQL with `mysqli`
 
-- `config/database.php` for the `mysqli` connection
-- `register.php` for registration
-- `login.php` for login
-- `home.php` for CRUD
-- `logout.php` for logout
-- `includes/session.php` for sessions
-- `includes/functions.php` for safe HTML output
+## Study Order
 
-## Database
+Read the files in this order:
 
-Create a MySQL database called `school`.
+1. `config/database.php`
+2. `includes/session.php`
+3. `includes/functions.php`
+4. `index.php`
+5. `register.php`
+6. `login.php`
+7. `home.php`
+8. `logout.php`
+9. `assets/css/style.css`
 
-The connection used is:
+## Explanation Files
 
-```php
-$conn = new mysqli("localhost", "root", "", "school");
-```
+Each main file has its own Markdown explanation:
 
-## Run
+- [config/database.md](config/database.md)
+- [includes/session.md](includes/session.md)
+- [includes/functions.md](includes/functions.md)
+- [index.md](index.md)
+- [register.md](register.md)
+- [login.md](login.md)
+- [home.md](home.md)
+- [logout.md](logout.md)
+- [assets/css/style.md](assets/css/style.md)
+
+## Run The App
+
+Start the PHP server from this folder:
 
 ```bash
 php -S localhost:8000
@@ -33,3 +50,22 @@ Then open:
 ```text
 http://localhost:8000
 ```
+
+## Database Used
+
+The connection in this project is:
+
+```php
+$conn = new mysqli("localhost", "phpuser", "1234", "php_learning");
+```
+
+The app uses two tables:
+
+- `users`
+- `notes`
+
+## Quick Flow
+
+The user starts at `index.php`, registers in `register.php`, logs in through
+`login.php`, works with notes in `home.php`, and leaves the app through
+`logout.php`.

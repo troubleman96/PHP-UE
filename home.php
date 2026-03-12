@@ -1,7 +1,12 @@
 <?php
 
+// Start the session.
 include "includes/session.php";
+
+// Load the helper function.
 include "includes/functions.php";
+
+// Connect to the database.
 include "config/database.php";
 
 // Allow only logged-in users to open this page.
@@ -10,6 +15,7 @@ if (!isset($_SESSION["user_id"])) {
     exit;
 }
 
+// Get the id of the logged-in user from the session.
 $userId = $_SESSION["user_id"];
 $message = "";
 $errors = [];
@@ -33,49 +39,61 @@ if (isset($_GET["message"])) {
 
 // Create, update, and delete are handled here.
 if ($requestMethod == "POST") {
+    // Read the hidden action value from the form.
     $action = $_POST["action"] ?? "";
 
+    // CREATE: add a new note.
     if ($action == "create") {
         $title = trim($_POST["title"] ?? "");
         $body = trim($_POST["body"] ?? "");
 
+        // Make sure both fields are filled in.
         if ($title == "" || $body == "") {
             $errors[] = "Title and description are required.";
         } else {
+            // Save the new note in the notes table.
             $insertNote = $conn->prepare("INSERT INTO notes (user_id, title, body) VALUES (?, ?, ?)");
             $insertNote->bind_param("iss", $userId, $title, $body);
             $insertNote->execute();
 
+            // Redirect so the page reloads with a success message.
             header("Location: home.php?message=created");
             exit;
         }
     }
 
+    // UPDATE: change an existing note.
     if ($action == "update") {
         $noteId = $_POST["note_id"] ?? "";
         $title = trim($_POST["title"] ?? "");
         $body = trim($_POST["body"] ?? "");
 
+        // Make sure all update fields were filled in.
         if ($noteId == "" || $title == "" || $body == "") {
             $errors[] = "All update fields are required.";
         } else {
+            // Update only the selected note that belongs to this user.
             $updateNote = $conn->prepare("UPDATE notes SET title = ?, body = ? WHERE id = ? AND user_id = ?");
             $updateNote->bind_param("ssii", $title, $body, $noteId, $userId);
             $updateNote->execute();
 
+            // Redirect so the page reloads with a success message.
             header("Location: home.php?message=updated");
             exit;
         }
     }
 
+    // DELETE: remove an existing note.
     if ($action == "delete") {
         $noteId = $_POST["note_id"] ?? "";
 
         if ($noteId != "") {
+            // Delete only the selected note that belongs to this user.
             $deleteNote = $conn->prepare("DELETE FROM notes WHERE id = ? AND user_id = ?");
             $deleteNote->bind_param("ii", $noteId, $userId);
             $deleteNote->execute();
 
+            // Redirect so the page reloads with a success message.
             header("Location: home.php?message=deleted");
             exit;
         }
@@ -99,6 +117,7 @@ $listNotes->bind_param("i", $userId);
 $listNotes->execute();
 $result = $listNotes->get_result();
 
+// Put each note into the $notes array so it can be shown in the table.
 while ($row = $result->fetch_assoc()) {
     $notes[] = $row;
 }
@@ -128,10 +147,12 @@ while ($row = $result->fetch_assoc()) {
             </div>
         </div>
 
+        <?php // Show success messages after create, update, or delete. ?>
         <?php if ($message != ""): ?>
             <div class="flash success"><?php echo show($message); ?></div>
         <?php endif; ?>
 
+        <?php // Show validation errors if they exist. ?>
         <?php if (!empty($errors)): ?>
             <div class="flash error">
                 <?php foreach ($errors as $error): ?>
@@ -212,6 +233,7 @@ while ($row = $result->fetch_assoc()) {
                             </tr>
                         </thead>
                         <tbody>
+                            <?php // Loop through all notes and print one table row for each note. ?>
                             <?php foreach ($notes as $note): ?>
                                 <tr>
                                     <td><?php echo show($note["id"]); ?></td>

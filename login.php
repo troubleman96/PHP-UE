@@ -1,14 +1,21 @@
 <?php
 
+// Start the session.
 include "includes/session.php";
+
+// Load the helper function.
 include "includes/functions.php";
+
+// Connect to the database.
 include "config/database.php";
 
+// If the user is already logged in, send them to the home page.
 if (isset($_SESSION["user_id"])) {
     header("Location: home.php");
     exit;
 }
 
+// These variables store page messages, form values, and errors.
 $errors = [];
 $message = "";
 $email = $_COOKIE["remember_email"] ?? "";
@@ -23,15 +30,18 @@ if (isset($_GET["message"]) && $_GET["message"] == "logout") {
     $message = "You have logged out.";
 }
 
-// Run this code when the login form is submitted.
+// Run this code only when the login form is submitted.
 if ($requestMethod == "POST") {
+    // Read the form data.
     $email = trim($_POST["email"] ?? "");
     $password = $_POST["password"] ?? "";
 
+    // Make sure both fields were filled in.
     if ($email == "" || $password == "") {
         $errors[] = "Email and password are required.";
     }
 
+    // Continue only if there are no validation errors.
     if (empty($errors)) {
         // Find the user by email.
         $findUser = $conn->prepare("SELECT id, full_name, email, password FROM users WHERE email = ?");
@@ -40,6 +50,7 @@ if ($requestMethod == "POST") {
         $result = $findUser->get_result();
         $user = $result->fetch_assoc();
 
+        // Check that the user exists and the password is correct.
         if ($user && password_verify($password, $user["password"])) {
             // Save user information in the session.
             $_SESSION["user_id"] = $user["id"];
@@ -56,6 +67,7 @@ if ($requestMethod == "POST") {
             header("Location: home.php");
             exit;
         } else {
+            // Show an error if login details are wrong.
             $errors[] = "Invalid email or password.";
         }
     }
@@ -80,10 +92,12 @@ if ($requestMethod == "POST") {
             <h1>Login</h1>
             <p class="intro-text">Log in with your email and password.</p>
 
+            <?php // Show success messages from registration or logout. ?>
             <?php if ($message != ""): ?>
                 <div class="flash success"><?php echo show($message); ?></div>
             <?php endif; ?>
 
+            <?php // Show login errors if they exist. ?>
             <?php if (!empty($errors)): ?>
                 <div class="flash error">
                     <?php foreach ($errors as $error): ?>

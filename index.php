@@ -1,6 +1,9 @@
 <?php
 
+// Include session support so we can check login status.
 include "includes/session.php";
+
+// Include the helper function used to print safe text.
 include "includes/functions.php";
 
 // Read the cookie if the user asked the app to remember their email.
@@ -24,6 +27,7 @@ $rememberedEmail = $_COOKIE["remember_email"] ?? "";
                 Create an account, log in, and manage notes.
             </p>
 
+            <?php // Show the remembered email only if the cookie exists. ?>
             <?php if ($rememberedEmail != ""): ?>
                 <div class="flash success">
                     Remembered email from cookie: <?php echo show($rememberedEmail); ?>
@@ -31,9 +35,11 @@ $rememberedEmail = $_COOKIE["remember_email"] ?? "";
             <?php endif; ?>
 
             <div class="actions">
+                <?php // If the session exists, the user is already logged in. ?>
                 <?php if (isset($_SESSION["user_id"])): ?>
                     <a class="button" href="home.php">Home Page</a>
                     <a class="button secondary" href="logout.php">Logout</a>
+                <?php // If there is no session, show register and login links. ?>
                 <?php else: ?>
                     <a class="button" href="register.php">Register</a>
                     <a class="button secondary" href="login.php">Login</a>
